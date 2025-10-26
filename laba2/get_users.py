@@ -1,7 +1,7 @@
 
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker, selectinload
-from test import User, Address, Product, Order
+from models import User, Address, Product, Order
 
 engine = create_engine("sqlite:///./test.db", echo=False)
 SessionLocal = sessionmaker(bind=engine)
