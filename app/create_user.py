@@ -1,7 +1,11 @@
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from models import Base, User, Address, Product, Order 
+from app.models.Base import Base
+from app.models.User import User
+from app.models.Address import Address
+from app.models.Order import Order
+from app.models.Product import Product
 
 engine = create_engine("sqlite:///./test.db", echo=False)
 Base.metadata.create_all(bind=engine)
@@ -10,8 +14,8 @@ SessionLocal = sessionmaker(bind=engine)
 #  1. Данные пользователей и адресов ===
 users_with_addresses = [
     {
-        "username": "Alice Johnson",
-        "email": "alice@example.com",
+        "username": "Alina John",
+        "email": "aiррce@example.com",
         "description": "Frontend developer",
         "addresses": [
             {"street": "123 Maple St", "city": "New York", "state": "NY", "zip_code": "10001", "country": "USA", "is_primary": True},
@@ -19,16 +23,16 @@ users_with_addresses = [
         ]
     },
     {
-        "username": "Bob Smith",
-        "email": "bob@example.com",
+        "username": "Grууeg Smith",
+        "email": "bbу@example.com",
         "description": "Data scientist",
         "addresses": [
             {"street": "789 Pine Rd", "city": "Los Angeles", "state": "CA", "zip_code": "90210", "country": "USA", "is_primary": True},
         ]
     },
     {
-        "username": "Charlie Brown",
-        "email": "charlie@example.com",
+        "username": "Idllni Brown",
+        "email": "challlie@example.com",
         "description": "DevOps engineer",
         "addresses": [
             {"street": "101 Birch Ln", "city": "Chicago", "state": "IL", "zip_code": "60601", "country": "USA", "is_primary": True},
@@ -36,16 +40,16 @@ users_with_addresses = [
         ]
     },
     {
-        "username": "Diana Prince",
-        "email": "diana@example.com",
+        "username": "Diannn Prince",
+        "email": "dialla@example.com",
         "description": "UX designer",
         "addresses": [
             {"street": "303 Spruce Dr", "city": "Seattle", "state": "WA", "zip_code": "98101", "country": "USA", "is_primary": True},
         ]
     },
     {
-        "username": "Evan Davis",
-        "email": "evan@example.com",
+        "username": "Ivaaan Davis",
+        "email": "evn@llexample.com",
         "description": "Backend developer",
         "addresses": [
             {"street": "404 Willow Way", "city": "Denver", "state": "CO", "zip_code": "80201", "country": "USA", "is_primary": True},
