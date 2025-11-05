@@ -1,5 +1,4 @@
-# app/models/user.py
-from typing import List
+
 from datetime import datetime
 import uuid
 from sqlalchemy import String, Text, DateTime, Boolean, ForeignKey, Integer

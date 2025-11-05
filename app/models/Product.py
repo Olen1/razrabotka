@@ -1,6 +1,4 @@
-# app/models/user.py
-from typing import List
-from datetime import datetime
+
 import uuid
 from sqlalchemy import String, Text, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship

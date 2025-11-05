@@ -1,6 +1,7 @@
 from typing import Optional, List, Any
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import and_, select
+from sqlalchemy import and_, select, func
+from sqlalchemy.sql import expression
 from app.models.User import User
 from app.User_schem import UserCreate, UserUpdate
 
@@ -17,7 +18,7 @@ class UserRepository:
             page: int,
             **kwargs: Any
     ) -> List[User]:
-        query = select(User)
+        query = select(User).order_by(User.created_at)  # ✅ Стабильный порядок для пагинации
 
         filters = []
         for key, value in kwargs.items():
@@ -32,14 +33,14 @@ class UserRepository:
         if filters:
             query = query.where(and_(*filters))
 
-        offset = (page - 1) * count if page > 0 else 0
+        offset = (page - 1) * count
         query = query.offset(offset).limit(count)
 
         result = await session.execute(query)
         return list(result.scalars().all())
 
     async def create(self, session: AsyncSession, user_data: UserCreate) -> User:
-        user_dict = user_data.model_dump(exclude_unset=True)
+        user_dict = user_data.model_dump()
         db_user = User(**user_dict)
         session.add(db_user)
         await session.commit()
@@ -71,3 +72,7 @@ class UserRepository:
         if db_user is not None:
             await session.delete(db_user)
             await session.commit()
+
+    async def get_total_count(self, session: AsyncSession) -> int:
+        result = await session.execute(select(func.count(User.id)))
+        return result.scalar_one()

@@ -6,8 +6,8 @@ BASE_URL = "http://localhost:8000"
 def test_create_user():
     # Данные нового пользователя
     user_data = {
-        "username": "test_user",
-        "email": "test@example.com",
+        "username": "tек_user",
+        "email": "tоооt@example.com",
         "description": "Тестовый пользователь для проверки API"
     }
 
