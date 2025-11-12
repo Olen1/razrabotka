@@ -1,6 +1,5 @@
-
 import uuid
-from sqlalchemy import String, Text, Integer
+from sqlalchemy import String, Integer, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.Base import Base
 
@@ -13,5 +12,9 @@ class Product(Base):
     name: Mapped[str] = mapped_column(String, nullable=False)
     price: Mapped[int] = mapped_column(Integer, nullable=False)  # в копейках/центах
     description: Mapped[str] = mapped_column(Text, nullable=True)
+    stock_quantity: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 
-    orders = relationship("Order", back_populates="product")
+    # Связь с OrderItem (НЕ напрямую с Order)
+    order_items = relationship("OrderItem", back_populates="product")
+    # (опционально) получить заказы через OrderItem
+    # orders = association_proxy("order_items", "order") # требует sqlalchemy.ext.associationproxy

@@ -13,6 +13,8 @@ class User(Base):
     __tablename__ = 'users'
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uuid4_str)
     username: Mapped[str] = mapped_column(String, nullable=False, unique=True)
+    firstname: Mapped[str] = mapped_column(String, nullable=True)
+    lastname: Mapped[str] = mapped_column(String, nullable=True)
     email: Mapped[str] = mapped_column(String, nullable=False, unique=True)
     description: Mapped[str] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)

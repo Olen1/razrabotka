@@ -5,7 +5,7 @@ BASE_URL = "http://localhost:8000"
 def list_all_users():
     try:
         response = requests.get(f"{BASE_URL}/users")
-        response.raise_for_status()  # вызовет исключение при 4xx/5xx статусе
+        response.raise_for_status()
         data = response.json()
 
         print(f"Всего пользователей в системе: {data['total_count']}\n")

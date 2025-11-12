@@ -5,8 +5,11 @@ from sqlalchemy.sql import expression
 from app.models.User import User
 from app.User_schem import UserCreate, UserUpdate
 
-
 class UserRepository:
+
+    def __init__(self):
+        pass
+
     async def get_by_id(self, session: AsyncSession, user_id: str) -> Optional[User]:
         result = await session.execute(select(User).where(User.id == user_id))
         return result.scalar_one_or_none()
@@ -66,6 +69,11 @@ class UserRepository:
         await session.commit()
         await session.refresh(db_user)
         return db_user
+
+
+    async def get_by_email(self, session: AsyncSession, email: str) -> Optional[User]:
+        result = await session.execute(select(User).where(User.email == email))
+        return result.scalar_one_or_none()
 
     async def delete(self, session: AsyncSession, user_id: str) -> None:
         db_user = await self.get_by_id(session, user_id)

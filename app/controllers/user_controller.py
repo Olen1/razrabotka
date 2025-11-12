@@ -11,7 +11,7 @@ from app.services.user_service import UserService
 class UserController(Controller):
     path = "/users"
 
-    @get()
+    @get("/")
     async def get_all_users(
             self,
             user_service: UserService,
@@ -38,7 +38,7 @@ class UserController(Controller):
             raise NotFoundException(detail=f"User with ID {user_id} not found")
         return UserResponse.model_validate(user)
 
-    @post()
+    @post("/")
     async def create_user(
             self,
             user_service: UserService,
