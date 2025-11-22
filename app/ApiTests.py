@@ -1,13 +1,13 @@
 from typing import Protocol
-from typing_extensions import runtime_checkable
 
 import pytest
-from pydantic import BaseModel
-from polyfactory.factories.pydantic_factory import ModelFactory
-from litestar.status_codes import HTTP_200_OK
 from litestar import get
 from litestar.di import Provide
+from litestar.status_codes import HTTP_200_OK
 from litestar.testing import create_test_client
+from polyfactory.factories.pydantic_factory import ModelFactory
+from pydantic import BaseModel
+from typing_extensions import runtime_checkable
 
 
 class Item(BaseModel):
@@ -16,8 +16,7 @@ class Item(BaseModel):
 
 @runtime_checkable
 class Service(Protocol):
-    def get_one(self) -> Item:
-        ...
+    def get_one(self) -> Item: ...
 
 
 @get(path="/item")
@@ -40,7 +39,7 @@ def test_get_item(item: Item):
             return item
 
     with create_test_client(
-            route_handlers=get_item, dependencies={"service": Provide(lambda: MyService())}
+        route_handlers=get_item, dependencies={"service": Provide(lambda: MyService())}
     ) as client:
         response = client.get("/item")
         assert response.status_code == HTTP_200_OK

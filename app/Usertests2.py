@@ -1,4 +1,5 @@
 import pytest
+
 from app.models.User import User
 from app.repositories.user_repository import UserRepository
 from app.User_schem import UserCreate, UserUpdate
@@ -15,9 +16,7 @@ class TestUserRepository:
             "lastname": "Duren",
         }
 
-
         user_create_schema = UserCreate(**user_data)
-
 
         user = await user_repository.create(session, user_create_schema)
 

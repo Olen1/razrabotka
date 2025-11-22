@@ -4,12 +4,11 @@ from litestar.testing import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
+from app.main import app
 from app.models.Base import Base
 from app.repositories.OrderRepository import OrderRepository
-from app.repositories.productReposutory import  ProductRepository
+from app.repositories.productReposutory import ProductRepository
 from app.repositories.user_repository import UserRepository
-from app.main import app
-
 
 # Тестовая база данных
 TEST_DATABASE_URL = "sqlite+aiosqlite:///./test.db"
@@ -32,9 +31,7 @@ async def tables(engine):
 
 @pytest_asyncio.fixture
 async def session(engine, tables):
-    async_session = sessionmaker(
-        engine, class_=AsyncSession, expire_on_commit=False
-    )
+    async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
     async with async_session() as session:
         yield session
         await session.rollback()

@@ -1,33 +1,44 @@
-# app/main.py
-from litestar import Litestar
+from litestar import Litestar, get
 from litestar.di import Provide
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
-from app.controllers.user_controller import UserController
-from app.controllers.product_controller import ProductController
 from app.controllers.order_controller import OrderController
-from app.repositories.OrderRepository import OrderRepository
-
-from app.repositories.productReposutory import ProductRepository
-from app.repositories.user_repository import UserRepository
-
-
-from app.services.user_service import UserService
-from app.services.product_service import ProductService
-from app.services.order_service import OrderService
-
-from app.models.User import User
-from app.models.Product import Product
-from app.models.Order import Order
-from app.models.OrderItem import OrderItem
+from app.controllers.product_controller import ProductController
+from app.controllers.user_controller import UserController
 from app.models.Address import Address
 from app.models.Base import Base
-
+from app.models.Order import Order
+from app.models.OrderItem import OrderItem
+from app.models.Product import Product
+from app.models.User import User
+from app.repositories.OrderRepository import OrderRepository
+from app.repositories.productReposutory import ProductRepository
+from app.repositories.user_repository import UserRepository
+from app.services.order_service import OrderService
+from app.services.product_service import ProductService
+from app.services.user_service import UserService
 
 DATABASE_URL = "sqlite+aiosqlite:///./test.db"
 engine = create_async_engine(DATABASE_URL)
-async_session_factory = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+async_session_factory = sessionmaker(
+    engine, class_=AsyncSession, expire_on_commit=False
+)
+
+
+@get("/")
+async def root() -> dict:
+    """Корневой эндпоинт с информацией об API"""
+    return {
+        "message": "API is running successfully!",
+        "documentation": "/docs",
+        "endpoints": {
+            "users": "/api/users",
+            "products": "/api/products",
+            "orders": "/api/orders",
+        },
+        "status": "active",
+    }
 
 
 async def provide_db_session() -> AsyncSession:
@@ -56,27 +67,32 @@ def provide_product_service(product_repo: ProductRepository) -> ProductService:
 
 
 def provide_order_service(
-        order_repo: OrderRepository,
-        product_repo: ProductRepository,
-        user_repo: UserRepository
+    order_repo: OrderRepository,
+    product_repo: ProductRepository,
+    user_repo: UserRepository,
 ) -> OrderService:
     return OrderService(
         order_repository=order_repo,
         product_repository=product_repo,
-        user_repository=user_repo
+        user_repository=user_repo,
     )
 
 
 app = Litestar(
-    route_handlers=[UserController, ProductController, OrderController],
+    route_handlers=[
+        root,  # Добавляем корневой эндпоинт
+        UserController,
+        ProductController,
+        OrderController,
+    ],
     dependencies={
         "session": Provide(provide_db_session),
-        "user_repo": Provide(provide_user_repo),
-        "product_repo": Provide(provide_product_repo),
-        "order_repo": Provide(provide_order_repo),
-        "user_service": Provide(provide_user_service),
-        "product_service": Provide(provide_product_service),
-        "order_service": Provide(provide_order_service),
+        "user_repo": Provide(provide_user_repo, sync_to_thread=False),
+        "product_repo": Provide(provide_product_repo, sync_to_thread=False),
+        "order_repo": Provide(provide_order_repo, sync_to_thread=False),
+        "user_service": Provide(provide_user_service, sync_to_thread=False),
+        "product_service": Provide(provide_product_service, sync_to_thread=False),
+        "order_service": Provide(provide_order_service, sync_to_thread=False),
     },
 )
 
@@ -88,8 +104,8 @@ async def create_tables():
 
 if __name__ == "__main__":
     import asyncio
+
     import uvicorn
 
     asyncio.run(create_tables())
-
     uvicorn.run(app, host="0.0.0.0", port=8000)

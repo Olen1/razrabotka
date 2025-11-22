@@ -1,5 +1,6 @@
+from unittest.mock import AsyncMock, Mock
+
 import pytest
-from unittest.mock import Mock, AsyncMock
 
 from app.repositories.OrderRepository import OrderRepository
 from app.repositories.productReposutory import ProductRepository
@@ -27,17 +28,12 @@ class TestOrderService2:
         order_service = OrderService(
             order_repository=mock_order_repo,
             product_repository=mock_product_repo,
-            user_repository=mock_user_repo
+            user_repository=mock_user_repo,
         )
 
         # Подготовим данные заказа как Pydantic-схему
         order_item_data = OrderItemCreate(product_id="1", quantity=5)
-        order_data = OrderCreate(
-            user_id="1",
-            address_id="1",
-            items=[order_item_data]
-        )
-
+        order_data = OrderCreate(user_id="1", address_id="1", items=[order_item_data])
 
         with pytest.raises(ValueError, match="Not enough stock"):
-           await order_service.create_order(session, order_data)
+            await order_service.create_order(session, order_data)

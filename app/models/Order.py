@@ -1,14 +1,18 @@
-from datetime import datetime
 import uuid
-from sqlalchemy import String, DateTime, ForeignKey
+from datetime import datetime
+
+from sqlalchemy import DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.models.Base import Base
+
 
 def uuid4_str():
     return str(uuid.uuid4())
 
+
 class Order(Base):
-    __tablename__ = 'orders'
+    __tablename__ = "orders"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uuid4_str)
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), nullable=False)
     address_id: Mapped[str] = mapped_column(ForeignKey("addresses.id"), nullable=False)
@@ -18,4 +22,6 @@ class Order(Base):
     user = relationship("User", back_populates="orders")
     delivery_address = relationship("Address", back_populates="orders")
     # Связь с OrderItem (НЕ напрямую с Product)
-    items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
+    items = relationship(
+        "OrderItem", back_populates="order", cascade="all, delete-orphan"
+    )

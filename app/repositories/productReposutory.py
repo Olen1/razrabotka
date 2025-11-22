@@ -1,6 +1,8 @@
-from typing import Optional, List, Any
+from typing import Any, List, Optional
+
+from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_, func
+
 from app.models.Product import Product
 from app.User_schem import ProductCreate, ProductUpdate
 
@@ -9,7 +11,9 @@ class ProductRepository:
     def __init__(self):
         pass
 
-    async def get_by_id(self, session: AsyncSession, product_id: str) -> Optional[Product]:
+    async def get_by_id(
+        self, session: AsyncSession, product_id: str
+    ) -> Optional[Product]:
         """
         Получить продукт по ID.
         """
@@ -17,11 +21,7 @@ class ProductRepository:
         return result.scalar_one_or_none()
 
     async def get_by_filter(
-            self,
-            session: AsyncSession,
-            count: int,
-            page: int,
-            **kwargs: Any
+        self, session: AsyncSession, count: int, page: int, **kwargs: Any
     ) -> List[Product]:
         """
         Получить продукты по фильтрам (пагинация).
@@ -47,7 +47,9 @@ class ProductRepository:
         result = await session.execute(query)
         return list(result.scalars().all())
 
-    async def create(self, session: AsyncSession, product_data: ProductCreate) -> Product:
+    async def create(
+        self, session: AsyncSession, product_data: ProductCreate
+    ) -> Product:
         """
         Создать продукт.
         """
@@ -59,10 +61,7 @@ class ProductRepository:
         return db_product
 
     async def update(
-            self,
-            session: AsyncSession,
-            product_id: str,
-            product_data: ProductUpdate
+        self, session: AsyncSession, product_id: str, product_data: ProductUpdate
     ) -> Product:
         """
         Обновить продукт.
@@ -91,7 +90,9 @@ class ProductRepository:
             await session.commit()
 
     # === НОВОЕ: Метод для уменьшения stock_quantity ===
-    async def decrease_stock(self, session: AsyncSession, product_id: str, quantity: int) -> bool:
+    async def decrease_stock(
+        self, session: AsyncSession, product_id: str, quantity: int
+    ) -> bool:
         """
         Уменьшает stock_quantity на указанное количество.
         Возвращает True, если успешно, False, если недостаточно товара.
@@ -108,7 +109,6 @@ class ProductRepository:
         await session.commit()
         await session.refresh(db_product)
         return True
-
 
     async def get_total_count(self, session: AsyncSession) -> int:
         """

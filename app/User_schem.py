@@ -1,6 +1,7 @@
-from pydantic import BaseModel
-from typing import Optional, List
 from datetime import datetime
+from typing import List, Optional
+
+from pydantic import BaseModel
 
 
 # --- USER SCHEMAS ---
@@ -50,7 +51,7 @@ class ProductUpdate(BaseModel):
     name: Optional[str] = None
     price: Optional[int] = None
     description: Optional[str] = None
-    stock_quantity: Optional[int] = None # <- Новое поле
+    stock_quantity: Optional[int] = None  # <- Новое поле
 
 
 class ProductResponse(BaseModel):
@@ -58,7 +59,7 @@ class ProductResponse(BaseModel):
     name: str
     price: int
     description: Optional[str] = None
-    stock_quantity: int # <- Новое поле
+    stock_quantity: int  # <- Новое поле
 
     model_config = {"from_attributes": True}
 
@@ -93,7 +94,7 @@ class OrderItemResponse(BaseModel):
 class OrderCreate(BaseModel):
     user_id: str
     address_id: str
-    items: List[OrderItemCreate] # <- Включаем список OrderItem
+    items: List[OrderItemCreate]  # <- Включаем список OrderItem
 
 
 class OrderUpdate(BaseModel):
@@ -107,7 +108,7 @@ class OrderResponse(BaseModel):
     user_id: str
     address_id: str
     created_at: datetime
-    items: List[OrderItemResponse] # <- Включаем список OrderItemResponse
+    items: List[OrderItemResponse]  # <- Включаем список OrderItemResponse
 
     model_config = {"from_attributes": True}
 

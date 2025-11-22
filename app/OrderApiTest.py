@@ -1,11 +1,13 @@
-import pytest
 import uuid
+
+import pytest
 from litestar.testing import AsyncTestClient
+
 from app.main import app
-from app.models.Order import Order
-from app.models.User import User
-from app.models.Product import Product
 from app.models.Address import Address
+from app.models.Order import Order
+from app.models.Product import Product
+from app.models.User import User
 
 
 @pytest.mark.asyncio
@@ -23,7 +25,7 @@ async def test_create_order(session):
         "name": "Order Product",
         "price": 1000,
         "description": "Product for order",
-        "stock_quantity": 50
+        "stock_quantity": 50,
     }
 
     async with AsyncTestClient(app=app) as ac:
@@ -41,12 +43,7 @@ async def test_create_order(session):
         order_data = {
             "user_id": user_id,
             "address_id": "test-address-id",  # В реальном тесте нужно создать адрес
-            "items": [
-                {
-                    "product_id": product_id,
-                    "quantity": 2
-                }
-            ]
+            "items": [{"product_id": product_id, "quantity": 2}],
         }
 
         response = await ac.post("/orders/", json=order_data)
@@ -65,8 +62,6 @@ async def test_create_order(session):
         assert len(order_response["items"]) == 1
 
         return order_response["id"]
-
-
 
 
 @pytest.mark.asyncio
@@ -104,11 +99,7 @@ async def test_get_order_by_id(session):
         "lastname": "Order",
     }
 
-    product_data = {
-        "name": "Get Order Product",
-        "price": 1500,
-        "stock_quantity": 10
-    }
+    product_data = {"name": "Get Order Product", "price": 1500, "stock_quantity": 10}
 
     async with AsyncTestClient(app=app) as ac:
         # Создаем пользователя и продукт
@@ -124,7 +115,7 @@ async def test_get_order_by_id(session):
         order_data = {
             "user_id": user_id,
             "address_id": "test-address-id",
-            "items": [{"product_id": product_id, "quantity": 1}]
+            "items": [{"product_id": product_id, "quantity": 1}],
         }
 
         create_response = await ac.post("/orders/", json=order_data)
@@ -143,8 +134,6 @@ async def test_get_order_by_id(session):
             assert len(order_response["items"]) == 1
 
 
-
-
 @pytest.mark.asyncio
 async def test_update_order(session):
     """Тест обновления заказа"""
@@ -156,11 +145,7 @@ async def test_update_order(session):
         "lastname": "Order",
     }
 
-    product_data = {
-        "name": "Update Order Product",
-        "price": 2000,
-        "stock_quantity": 15
-    }
+    product_data = {"name": "Update Order Product", "price": 2000, "stock_quantity": 15}
 
     async with AsyncTestClient(app=app) as ac:
         # Создаем пользователя и продукт
@@ -176,7 +161,7 @@ async def test_update_order(session):
         order_data = {
             "user_id": user_id,
             "address_id": "address-1",
-            "items": [{"product_id": product_id, "quantity": 1}]
+            "items": [{"product_id": product_id, "quantity": 1}],
         }
 
         create_response = await ac.post("/orders/", json=order_data)
@@ -184,9 +169,7 @@ async def test_update_order(session):
             order_id = create_response.json()["id"]
 
             # Обновляем заказ
-            update_data = {
-                "address_id": "address-2"  # Меняем адрес
-            }
+            update_data = {"address_id": "address-2"}  # Меняем адрес
             response = await ac.put(f"/orders/{order_id}", json=update_data)
 
             print("Update Order Status:", response.status_code)
@@ -195,9 +178,6 @@ async def test_update_order(session):
                 order_response = response.json()
                 # Проверяем, что заказ обновлен
                 assert order_response["id"] == order_id
-
-
-
 
 
 @pytest.mark.asyncio
@@ -211,11 +191,7 @@ async def test_delete_order(session):
         "lastname": "Order",
     }
 
-    product_data = {
-        "name": "Delete Order Product",
-        "price": 3000,
-        "stock_quantity": 8
-    }
+    product_data = {"name": "Delete Order Product", "price": 3000, "stock_quantity": 8}
 
     async with AsyncTestClient(app=app) as ac:
         # Создаем пользователя и продукт
@@ -231,7 +207,7 @@ async def test_delete_order(session):
         order_data = {
             "user_id": user_id,
             "address_id": "delete-address",
-            "items": [{"product_id": product_id, "quantity": 1}]
+            "items": [{"product_id": product_id, "quantity": 1}],
         }
 
         create_response = await ac.post("/orders/", json=order_data)
@@ -248,11 +224,3 @@ async def test_delete_order(session):
             # Проверяем, что заказ удален
             get_response = await ac.get(f"/orders/{order_id}")
             assert get_response.status_code == 404
-
-
-
-
-
-
-
-

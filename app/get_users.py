@@ -1,7 +1,6 @@
-
+from models import Address, Order, Product, User
 from sqlalchemy import create_engine, select
-from sqlalchemy.orm import sessionmaker, selectinload
-from models import User, Address, Product, Order
+from sqlalchemy.orm import selectinload, sessionmaker
 
 engine = create_engine("sqlite:///./test.db", echo=False)
 SessionLocal = sessionmaker(bind=engine)
@@ -12,9 +11,7 @@ with SessionLocal() as session:
     print("=" * 60)
 
     # Загружаем пользователей + адреса
-    users = session.scalars(
-        select(User).options(selectinload(User.addresses))
-    ).all()
+    users = session.scalars(select(User).options(selectinload(User.addresses))).all()
 
     for user in users:
         print(f"\n {user.username} ({user.email})")
@@ -33,7 +30,7 @@ with SessionLocal() as session:
         .options(
             selectinload(Order.user),
             selectinload(Order.delivery_address),
-            selectinload(Order.product)
+            selectinload(Order.product),
         )
         .order_by(Order.created_at)
     ).all()
@@ -44,7 +41,7 @@ with SessionLocal() as session:
         addr = order.delivery_address
         print(f"   Адрес доставки: {addr.street}, {addr.city}, {addr.country}")
         prod = order.product
-        price_rub = prod.price / 100 
+        price_rub = prod.price / 100
         print(f"   Товар: {prod.name} — {order.quantity} шт. (${price_rub:.2f})")
         print(f"   Дата: {order.created_at.strftime('%Y-%m-%d %H:%M')}")
 

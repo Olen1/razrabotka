@@ -1,8 +1,9 @@
-from logging.config import fileConfig
-import sys
 import os
-from sqlalchemy import engine_from_config, pool
+import sys
+from logging.config import fileConfig
+
 from alembic import context
+from sqlalchemy import engine_from_config, pool
 
 # Добавляем корень проекта в sys.path (на случай проблем с путями на Windows)
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))

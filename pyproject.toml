@@ -1,0 +1,36 @@
+[tool.black]
+line-length = 88
+target-version = ['py313']
+include = '\.py$'
+extend-exclude = '''
+/(
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+  | venv
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+known_first_party = ["app"]
+known_third_party = ["litestar", "sqlalchemy", "pydantic", "pytest", "requests"]
+
+
+[project]
+name = "your-app-name"
+version = "0.1.0"
+dependencies = [
+    "litestar[standard]",
+    "uvicorn[standard]",
+    "sqlalchemy",
+    "alembic",
+    "aiosqlite",
+    # ... другие зависимости
+]

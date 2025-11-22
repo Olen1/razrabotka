@@ -1,9 +1,11 @@
-import pytest
 import uuid
+
+import pytest
 from litestar.testing import AsyncTestClient
+
 from app.main import app
-from app.User_schem import UserCreate, UserUpdate, UserResponse
 from app.models.User import User
+from app.User_schem import UserCreate, UserResponse, UserUpdate
 
 
 @pytest.mark.asyncio
@@ -22,7 +24,9 @@ async def test_create_user(session):
     print("Status Code:", response.status_code)
     print("Response Body:", response.text)
 
-    assert response.status_code == 201, f"Expected 201, got {response.status_code}. Response: {response.text}"
+    assert (
+        response.status_code == 201
+    ), f"Expected 201, got {response.status_code}. Response: {response.text}"
 
     user_response = response.json()
     assert user_response["username"] == "test_user_api"
@@ -55,7 +59,7 @@ async def test_get_all_users(session):
             "email": "user2@example.com",
             "firstname": "User",
             "lastname": "Two",
-        }
+        },
     ]
 
     async with AsyncTestClient(app=app) as ac:
@@ -156,7 +160,7 @@ async def test_update_user(session):
         update_data = {
             "firstname": "After",
             "lastname": "Updated",
-            "email": "updated@example.com"
+            "email": "updated@example.com",
         }
         response = await ac.put(f"/users/{user_id}", json=update_data)
 
@@ -177,10 +181,7 @@ async def test_update_user(session):
 async def test_update_user_not_found(session):
     """Тест обновления несуществующего пользователя"""
     non_existent_id = str(uuid.uuid4())
-    update_data = {
-        "firstname": "Test",
-        "lastname": "User"
-    }
+    update_data = {"firstname": "Test", "lastname": "User"}
 
     async with AsyncTestClient(app=app) as ac:
         response = await ac.put(f"/users/{non_existent_id}", json=update_data)
@@ -235,7 +236,3 @@ async def test_delete_user_not_found(session):
     assert response.status_code == 404
     error_response = response.json()
     assert "detail" in error_response
-
-
-
-

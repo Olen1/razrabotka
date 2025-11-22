@@ -1,4 +1,5 @@
 import pytest
+
 from app.models.User import User
 from app.repositories.user_repository import UserRepository
 from app.User_schem import UserCreate, UserResponse
@@ -15,9 +16,7 @@ class TestUserRepository:
             "lastname": "Doe",
         }
 
-
         user_create_schema = UserCreate(**user_data)
-
 
         user = await user_repository.create(session, user_create_schema)
 
@@ -26,8 +25,6 @@ class TestUserRepository:
         assert user.username == "john_doe"
         assert user.firstname == "John"
         assert user.lastname == "Doe"
-
-
 
         fetched_user = await session.get(User, user.id)
         assert fetched_user is not None

@@ -1,9 +1,12 @@
-from typing import Optional, List, Any
+from typing import Any, List, Optional
+
+from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import and_, select, func
 from sqlalchemy.sql import expression
+
 from app.models.User import User
 from app.User_schem import UserCreate, UserUpdate
+
 
 class UserRepository:
 
@@ -15,13 +18,11 @@ class UserRepository:
         return result.scalar_one_or_none()
 
     async def get_by_filter(
-            self,
-            session: AsyncSession,
-            count: int,
-            page: int,
-            **kwargs: Any
+        self, session: AsyncSession, count: int, page: int, **kwargs: Any
     ) -> List[User]:
-        query = select(User).order_by(User.created_at)  # ✅ Стабильный порядок для пагинации
+        query = select(User).order_by(
+            User.created_at
+        )  # ✅ Стабильный порядок для пагинации
 
         filters = []
         for key, value in kwargs.items():
@@ -51,10 +52,7 @@ class UserRepository:
         return db_user
 
     async def update(
-            self,
-            session: AsyncSession,
-            user_id: str,
-            user_data: UserUpdate
+        self, session: AsyncSession, user_id: str, user_data: UserUpdate
     ) -> User:
         db_user = await self.get_by_id(session, user_id)
         if db_user is None:
@@ -69,7 +67,6 @@ class UserRepository:
         await session.commit()
         await session.refresh(db_user)
         return db_user
-
 
     async def get_by_email(self, session: AsyncSession, email: str) -> Optional[User]:
         result = await session.execute(select(User).where(User.email == email))

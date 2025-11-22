@@ -1,5 +1,6 @@
+from unittest.mock import AsyncMock, Mock
+
 import pytest
-from unittest.mock import Mock, AsyncMock
 
 from app.repositories.OrderRepository import OrderRepository
 from app.repositories.productReposutory import ProductRepository
@@ -10,7 +11,9 @@ from app.User_schem import OrderCreate, OrderItemCreate
 
 class TestOrderService:
     @pytest.mark.asyncio
-    async def test_create_order_success(self, session, order_repository, product_repository, user_repository):
+    async def test_create_order_success(
+        self, session, order_repository, product_repository, user_repository
+    ):
         """Тест успешного создания заказа через OrderService"""
         # Мокаем репозитории
         mock_order_repo = AsyncMock(spec=OrderRepository)
@@ -18,7 +21,9 @@ class TestOrderService:
         mock_user_repo = AsyncMock(spec=UserRepository)
 
         # Настраиваем моки
-        mock_user_repo.get_by_id.return_value = Mock(id="1", email="test@example.com") # id тоже строка
+        mock_user_repo.get_by_id.return_value = Mock(
+            id="1", email="test@example.com"
+        )  # id тоже строка
         mock_product_repo.get_by_id.return_value = Mock(
             id="1", name="Test Product", price=100.0, stock_quantity=5
         )
@@ -29,17 +34,12 @@ class TestOrderService:
         order_service = OrderService(
             order_repository=mock_order_repo,
             product_repository=mock_product_repo,
-            user_repository=mock_user_repo
+            user_repository=mock_user_repo,
         )
 
         # Подготовим данные заказа как Pydantic-схему
         order_item_data = OrderItemCreate(product_id="1", quantity=2)
-        order_data = OrderCreate(
-            user_id="1",
-            address_id="1",
-            items=[order_item_data]
-        )
-
+        order_data = OrderCreate(user_id="1", address_id="1", items=[order_item_data])
 
         result = await order_service.create_order(session, order_data)
 

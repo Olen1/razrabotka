@@ -1,9 +1,10 @@
-from typing import Optional, List, Any
+from typing import Any, List, Optional
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.User_schem import UserCreate, UserUpdate
 from app.models import User
 from app.repositories.user_repository import UserRepository
+from app.User_schem import UserCreate, UserUpdate
 
 
 class UserService:
@@ -14,11 +15,7 @@ class UserService:
         return await self.repo.get_by_id(session, user_id)
 
     async def get_by_filter(
-            self,
-            session: AsyncSession,
-            count: int,
-            page: int,
-            **kwargs: Any
+        self, session: AsyncSession, count: int, page: int, **kwargs: Any
     ) -> List[User]:
         return await self.repo.get_by_filter(session, count=count, page=page, **kwargs)
 
@@ -26,10 +23,7 @@ class UserService:
         return await self.repo.create(session, user_data)
 
     async def update(
-            self,
-            session: AsyncSession,
-            user_id: str,
-            user_data: UserUpdate
+        self, session: AsyncSession, user_id: str, user_data: UserUpdate
     ) -> User:
         return await self.repo.update(session, user_id, user_data)
 

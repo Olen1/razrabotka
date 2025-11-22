@@ -1,6 +1,8 @@
-import pytest
 import uuid
+
+import pytest
 from litestar.testing import AsyncTestClient
+
 from app.main import app
 from app.models.Product import Product
 
@@ -12,7 +14,7 @@ async def test_create_product(session):
         "name": "Test Product",
         "price": 1000,
         "description": "Test description",
-        "stock_quantity": 50
+        "stock_quantity": 50,
     }
 
     async with AsyncTestClient(app=app) as ac:
@@ -35,9 +37,6 @@ async def test_create_product(session):
     assert fetched_product is not None
 
     return product_response["id"]
-
-
-
 
 
 @pytest.mark.asyncio
@@ -86,7 +85,7 @@ async def test_get_product_by_id(session):
         "name": "Get By ID Product",
         "price": 2000,
         "description": "Get by ID description",
-        "stock_quantity": 25
+        "stock_quantity": 25,
     }
 
     async with AsyncTestClient(app=app) as ac:
@@ -107,8 +106,6 @@ async def test_get_product_by_id(session):
     assert product_response["stock_quantity"] == 25
 
 
-
-
 @pytest.mark.asyncio
 async def test_update_product(session):
     """Тест обновления продукта"""
@@ -116,7 +113,7 @@ async def test_update_product(session):
         "name": "Update Product",
         "price": 1000,
         "description": "Before update",
-        "stock_quantity": 10
+        "stock_quantity": 10,
     }
 
     async with AsyncTestClient(app=app) as ac:
@@ -129,7 +126,7 @@ async def test_update_product(session):
             "name": "Updated Product",
             "price": 1500,
             "description": "After update",
-            "stock_quantity": 20
+            "stock_quantity": 20,
         }
         response = await ac.put(f"/products/{product_id}", json=update_data)
 
@@ -141,7 +138,3 @@ async def test_update_product(session):
     assert product_response["price"] == 1500
     assert product_response["description"] == "After update"
     assert product_response["stock_quantity"] == 20
-
-
-
-

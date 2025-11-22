@@ -1,6 +1,7 @@
 import pytest
+
 from app.models.Product import Product
-from app.repositories.productReposutory import  ProductRepository
+from app.repositories.productReposutory import ProductRepository
 from app.User_schem import ProductCreate, ProductUpdate
 
 
@@ -49,14 +50,18 @@ class TestProductRepository:
         product_update_schema = ProductUpdate(**update_data)
 
         # Обновляем
-        updated_product = await product_repository.update(session, product.id, product_update_schema)
+        updated_product = await product_repository.update(
+            session, product.id, product_update_schema
+        )
 
         assert updated_product.name == "Updated Product"
         assert updated_product.price == 500  # не изменилось
         assert updated_product.stock_quantity == 20
 
     @pytest.mark.asyncio
-    async def test_get_all_products(self, session, product_repository: ProductRepository):
+    async def test_get_all_products(
+        self, session, product_repository: ProductRepository
+    ):
         """Тест получения списка продуктов"""
         # Сначала создаём несколько продуктов
         products_data = [
@@ -81,7 +86,9 @@ class TestProductRepository:
             created_products.append(product)
 
         # Получаем список
-        products_list = await product_repository.get_by_filter(session, count=10, page=1)
+        products_list = await product_repository.get_by_filter(
+            session, count=10, page=1
+        )
 
         # Проверяем, что все созданные продукты есть в списке
         assert len(products_list) >= 2
@@ -90,7 +97,9 @@ class TestProductRepository:
             assert product.id in product_ids
 
     @pytest.mark.asyncio
-    async def test_get_product_by_id(self, session, product_repository: ProductRepository):
+    async def test_get_product_by_id(
+        self, session, product_repository: ProductRepository
+    ):
         """Тест получения продукта по ID"""
         # Сначала создаём продукт
         product_data = {
