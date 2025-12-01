@@ -2,8 +2,8 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 
-from app.repositories.OrderRepository import OrderRepository
-from app.repositories.productReposutory import ProductRepository
+from app.repositories.order_repository import OrderRepository
+from app.repositories.product_reposutory import ProductRepository
 from app.repositories.user_repository import UserRepository
 from app.services import order_service
 from app.services.order_service import OrderService

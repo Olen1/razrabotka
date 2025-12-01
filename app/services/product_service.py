@@ -3,7 +3,7 @@ from typing import Any, List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.Product import Product
-from app.repositories.productReposutory import ProductRepository
+from app.repositories.product_reposutory import ProductRepository
 from app.User_schem import ProductCreate, ProductUpdate
 
 

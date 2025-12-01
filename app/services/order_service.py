@@ -3,8 +3,8 @@ from typing import Any, Dict, List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.Order import Order
-from app.repositories import OrderRepository
-from app.repositories.productReposutory import ProductRepository
+from app.repositories import order_repository
+from app.repositories.product_reposutory import ProductRepository
 from app.repositories.user_repository import UserRepository
 from app.User_schem import (
     OrderCreate,

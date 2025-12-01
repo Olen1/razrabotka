@@ -12,8 +12,8 @@ from app.models.Order import Order
 from app.models.OrderItem import OrderItem
 from app.models.Product import Product
 from app.models.User import User
-from app.repositories.OrderRepository import OrderRepository
-from app.repositories.productReposutory import ProductRepository
+from app.repositories.order_repository import OrderRepository
+from app.repositories.product_reposutory import ProductRepository
 from app.repositories.user_repository import UserRepository
 from app.services.order_service import OrderService
 from app.services.product_service import ProductService

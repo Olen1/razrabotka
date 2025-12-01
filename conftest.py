@@ -6,8 +6,8 @@ from sqlalchemy.orm import sessionmaker
 
 from app.main import app
 from app.models.Base import Base
-from app.repositories.OrderRepository import OrderRepository
-from app.repositories.productReposutory import ProductRepository
+from app.repositories.order_repository import OrderRepository
+from app.repositories.product_reposutory import ProductRepository
 from app.repositories.user_repository import UserRepository
 
 # Тестовая база данных

@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.Order import Order
 from app.models.OrderItem import OrderItem
-from app.repositories.productReposutory import (
+from app.repositories.product_reposutory import (
     ProductRepository,  # ← Исправлено: product_repository, а не productReposutory
 )
 from app.User_schem import OrderCreate, OrderUpdate

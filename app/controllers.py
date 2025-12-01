@@ -15,7 +15,7 @@ from app.queue_schemas  import (
     OrderCreate, OrderUpdate, OrderResponse,
     OrderStatus, ProductStatus, ExtendedOrderMessage, ExtendedProductMessage
 )
-from decimal import Decimal
+
 import logging
 
 logger = logging.getLogger(__name__)
