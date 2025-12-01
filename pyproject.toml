@@ -23,6 +23,10 @@ known_first_party = ["app"]
 known_third_party = ["litestar", "sqlalchemy", "pydantic", "pytest", "requests"]
 
 
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+
+
 [project]
 name = "your-app-name"
 version = "0.1.0"

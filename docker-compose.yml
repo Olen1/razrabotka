@@ -1,13 +1,28 @@
+version: '3.8'
+
 services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"  # порт для AMQP
+      - "15672:15672"  # порт для веб-интерфейса
+    environment:
+      - RABBITMQ_DEFAULT_VHOST=local
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
   web:
     build: .
     ports:
       - "8000:8000"
+    depends_on:
+      - rabbitmq
     environment:
-      - DATABASE_URL=sqlite:///./test.db
+
+      - DATABASE_URL=sqlite+aiosqlite:///./test.db
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/local
       - HOST=0.0.0.0
       - PORT=8000
-    volumes:
-      - .:/app
-    working_dir: /app
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  rabbitmq_data:
