@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   rabbitmq:
     image: rabbitmq:3-management
@@ -11,18 +9,32 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
 
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - 6379:6379
+    volumes:
+      - redis_data:/data  # изменил на redis_data для единообразия
+
   web:
     build: .
     ports:
       - "8000:8000"
     depends_on:
       - rabbitmq
+      - redis  # добавил зависимость от redis
     environment:
-
       - DATABASE_URL=sqlite+aiosqlite:///./test.db
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/local
+      - REDIS_URL=redis://redis:6379/0  # добавил переменную для Redis
       - HOST=0.0.0.0
       - PORT=8000
+    volumes:
+      - .:/app  # добавил монтирование кода для разработки
+    working_dir: /app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
 volumes:
   rabbitmq_data:
+  redis_data:  # добавил определение volume для Redis
