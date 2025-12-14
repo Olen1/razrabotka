@@ -1,11 +1,11 @@
 import requests
 
-BASE_URL = "http://localhost:8000"
+BASE_URL = "http://127.0.0.1:8080"
 
 
 def list_all_users():
     try:
-        response = requests.get(f"{BASE_URL}/users")
+        response = requests.get(f"{BASE_URL}/api/users")
         response.raise_for_status()
         data = response.json()
 

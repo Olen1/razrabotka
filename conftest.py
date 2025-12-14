@@ -1,57 +1,47 @@
 import pytest
-import pytest_asyncio
-from litestar.testing import TestClient
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker
+import httpx
+import asyncio
+from typing import AsyncGenerator, Dict, Any
+import os
 
-from app.main import app
-from app.models.Base import Base
-from app.repositories.order_repository import OrderRepository
-from app.repositories.product_reposutory import ProductRepository
-from app.repositories.user_repository import UserRepository
+# Базовый URL API
+BASE_URL = os.getenv("API_URL", "http://127.0.0.1:8080")
 
-# Тестовая база данных
-TEST_DATABASE_URL = "sqlite+aiosqlite:///./test.db"
+@pytest.fixture(scope="session")
+def event_loop():
+    """Event loop для асинхронных тестов."""
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
 
-
-@pytest_asyncio.fixture(scope="session")
-def engine():
-    return create_async_engine(TEST_DATABASE_URL, echo=True)
-
-
-@pytest_asyncio.fixture(scope="session")
-async def tables(engine):
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-        await conn.run_sync(Base.metadata.create_all)
-    yield
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-
-
-@pytest_asyncio.fixture
-async def session(engine, tables):
-    async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
-    async with async_session() as session:
-        yield session
-        await session.rollback()
-
-
-@pytest_asyncio.fixture
-def user_repository():
-    return UserRepository()
-
-
-@pytest_asyncio.fixture
-def product_repository():
-    return ProductRepository()
-
-
-@pytest_asyncio.fixture
-def order_repository():
-    return OrderRepository()
-
+@pytest.fixture(scope="session")
+async def async_client() -> AsyncGenerator[httpx.AsyncClient, None]:
+    """Асинхронный HTTP клиент для тестов."""
+    async with httpx.AsyncClient(
+            base_url=BASE_URL,
+            timeout=30.0,
+            follow_redirects=True
+    ) as client:
+        yield client
 
 @pytest.fixture
-def client():
-    return TestClient(app=app)
+def report_data() -> Dict[str, Any]:
+    """Тестовые данные для отчетов."""
+    return {
+        "id": 1,
+        "date": "2024-01-15",
+        "amount": 1000.50,
+        "status": "completed",
+        "user_id": 123
+    }
+
+@pytest.fixture
+def user_data() -> Dict[str, Any]:
+    """Тестовые данные для пользователей."""
+    return {
+        "id": 1,
+        "name": "Иван Иванов",
+        "email": "ivan@example.com",
+        "role": "user",
+        "active": True
+    }

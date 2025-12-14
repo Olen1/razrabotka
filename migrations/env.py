@@ -5,6 +5,8 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
+from app.models import Base
+
 # Добавляем корень проекта в sys.path (на случай проблем с путями на Windows)
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
@@ -13,8 +15,6 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Импортируем Base и модели из test.py
-from models import Base
 
 # Важно: если модели определены в test.py, они уже зарегистрированы в Base.metadata
 # при импорте выше — дополнительный import test не нужен

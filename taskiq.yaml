@@ -1,0 +1,23 @@
+# taskiq.yaml
+broker:
+  class: taskiq_aio_pika.AioPikaBroker
+  # Или для локального тестирования без RabbitMQ:
+  # class: taskiq.InMemoryBroker
+
+  # Настройки для AioPika
+  uri: "amqp://guest:guest@localhost:5672/"
+  exchange_name: "taskiq_exchange"
+  queue_name: "taskiq_queue"
+
+  # Настройки для результирующего бэкенда
+  result_backend:
+    class: taskiq_redis.RedisAsyncResultBackend
+    redis_url: "redis://localhost:6379/0"
+
+scheduler:
+  sources:
+    - class: taskiq.schedule_sources.LabelScheduleSource
+
+# Настройки логгирования
+logging:
+  level: "INFO"

@@ -17,6 +17,7 @@ from app.User_schem import (
 class ProductController(Controller):
     path = "/products"
 
+
     @get("/")
     async def get_all_products(
         self,

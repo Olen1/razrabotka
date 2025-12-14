@@ -12,6 +12,7 @@ from app.User_schem import UserCreate, UserResponse, UsersListResponse, UserUpda
 class UserController(Controller):
     path = "/users"
 
+
     @get("/")
     async def get_all_users(
         self,

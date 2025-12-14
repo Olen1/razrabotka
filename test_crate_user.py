@@ -1,7 +1,7 @@
 import requests
 
 # Адрес вашего запущенного сервера
-BASE_URL = "http://localhost:8000"
+BASE_URL = "http://127.0.0.1:8080"
 
 
 def test_create_user():
@@ -13,7 +13,7 @@ def test_create_user():
     }
 
     # Отправляем POST-запрос на /users
-    response = requests.post(f"{BASE_URL}/users", json=user_data)
+    response = requests.post(f"{BASE_URL}/api/users", json=user_data)
 
     print("Статус-код:", response.status_code)
 

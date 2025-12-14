@@ -1,14 +1,13 @@
-# app/queue_handlers.py
-from typing import Any
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.controllers.database import async_session_maker
+from app.database import async_session_maker
 from app.services.product_service import ProductService
 from app.services.order_service import OrderService
 from app.repositories.product_reposutory import ProductRepository  # Исправлено
 from app.repositories.order_repository import OrderRepository  # Исправлено
 from app.repositories.user_repository import UserRepository  # Исправлено
-from app.queue_schemas import ExtendedOrderMessage, ExtendedProductMessage, OrderStatus, ProductStatus, OrderCreate, ProductCreate, ProductUpdate
+from app.queue_schemas import ExtendedOrderMessage, ExtendedProductMessage, ProductStatus, OrderCreate, ProductCreate, ProductUpdate
 import logging
 from decimal import Decimal
 

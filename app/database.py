@@ -1,5 +1,3 @@
-# app/database.py
-import os
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
@@ -43,5 +41,4 @@ async def get_db_session() -> AsyncSession:
             await session.close()
 
 
-# Dependency для Litestar - это то, что импортируется как provide_db_session
 provide_db_session = get_db_session

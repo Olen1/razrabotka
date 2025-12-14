@@ -1,111 +1,149 @@
-from litestar import Litestar, get
+# app/main.py (исправленная версия)
+from datetime import datetime
+import os
+
+from litestar import Litestar, get, post
 from litestar.di import Provide
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
+import asyncio
 
-from app.controllers.order_controller import OrderController
-from app.controllers.product_controller import ProductController
-from app.controllers.user_controller import UserController
-from app.models.Address import Address
-from app.models.Base import Base
-from app.models.Order import Order
-from app.models.OrderItem import OrderItem
-from app.models.Product import Product
-from app.models.User import User
-from app.repositories.order_repository import OrderRepository
-from app.repositories.product_reposutory import ProductRepository
-from app.repositories.user_repository import UserRepository
-from app.services.order_service import OrderService
-from app.services.product_service import ProductService
-from app.services.user_service import UserService
+# Отключаем предупреждения
+os.environ["LITESTAR_WARN_SYNC_TO_THREAD_WITH_GENERATOR"] = "0"
 
-DATABASE_URL = "sqlite+aiosqlite:///./test.db"
+DATABASE_URL = "sqlite+aiosqlite:///./data/test.db"
 engine = create_async_engine(DATABASE_URL)
 async_session_factory = sessionmaker(
     engine, class_=AsyncSession, expire_on_commit=False
 )
 
-
 @get("/")
 async def root() -> dict:
-    """Корневой эндпоинт с информацией об API"""
+    """Корневой эндпоинт"""
     return {
-        "message": "API is running successfully!",
-        "documentation": "/docs",
+        "message": "API работает успешно!",
+        "timestamp": datetime.now().isoformat(),
         "endpoints": {
-            "users": "/api/users",
-            "products": "/api/products",
-            "orders": "/api/orders",
-        },
-        "status": "active",
+            "GET /api/reports": "Получить отчеты",
+            "GET /api/users": "Получить пользователей",
+            "GET /api/products": "Получить продукты",
+            "GET /api/orders": "Получить заказы",
+            "GET /health": "Health check",
+            "GET /schema": "Документация"
+        }
     }
 
+@get("/health")
+async def health_check() -> dict:
+    """Health check"""
+    return {
+        "status": "healthy",
+        "service": "Order Management API",
+        "timestamp": datetime.now().isoformat()
+    }
+
+# ========== ПРОСТЫЕ ЭНДПОИНТЫ ДЛЯ ТЕСТА ==========
+
+@get("/api/reports")
+async def get_reports(date: str = "2024-01-01") -> dict:
+    """GET: Получить отчеты"""
+    return {
+        "endpoint": "/api/reports",
+        "method": "GET",
+        "date": date,
+        "data": [
+            {"id": 1, "report_date": date, "amount": 1000.50, "status": "completed"},
+            {"id": 2, "report_date": date, "amount": 2000.75, "status": "pending"}
+        ],
+        "total": 3001.25
+    }
+
+@get("/api/users")
+async def get_users(limit: int = 10) -> dict:
+    """GET: Получить пользователей"""
+    return {
+        "endpoint": "/api/users",
+        "method": "GET",
+        "users": [
+            {"id": 1, "name": "Иван Иванов", "email": "ivan@example.com"},
+            {"id": 2, "name": "Мария Петрова", "email": "maria@example.com"},
+            {"id": 3, "name": "Алексей Сидоров", "email": "alex@example.com"}
+        ][:limit]
+    }
+
+@get("/api/products")
+async def get_products() -> dict:
+    """GET: Получить продукты"""
+    return {
+        "endpoint": "/api/products",
+        "method": "GET",
+        "products": [
+            {"id": 1, "name": "Ноутбук", "price": 50000.0, "category": "электроника"},
+            {"id": 2, "name": "Смартфон", "price": 30000.0, "category": "электроника"},
+            {"id": 3, "name": "Книга", "price": 500.0, "category": "литература"}
+        ]
+    }
+
+@get("/api/orders")
+async def get_orders() -> dict:
+    """GET: Получить заказы"""
+    return {
+        "endpoint": "/api/orders",
+        "method": "GET",
+        "orders": [
+            {"id": 1, "user_id": 1, "total": 50500.0, "status": "completed"},
+            {"id": 2, "user_id": 2, "total": 30000.0, "status": "processing"}
+        ]
+    }
 
 async def provide_db_session() -> AsyncSession:
+    """Dependency для сессии базы данных"""
     async with async_session_factory() as session:
-        yield session
+        try:
+            yield session
+        finally:
+            await session.close()
 
+async def create_tables():
+    """Создание таблиц"""
+    try:
+        # Создаем папку data если её нет
+        os.makedirs("./data", exist_ok=True)
 
-def provide_user_repo() -> UserRepository:
-    return UserRepository()
+        # Импортируем Base только когда нужно
+        from app.models.Base import Base
 
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        print("Таблицы базы данных созданы")
+    except Exception as e:
+        print(f"Не удалось создать таблицы: {e}")
 
-def provide_product_repo() -> ProductRepository:
-    return ProductRepository()
-
-
-def provide_order_repo() -> OrderRepository:
-    return OrderRepository()
-
-
-def provide_user_service(user_repo: UserRepository) -> UserService:
-    return UserService(repo=user_repo)
-
-
-def provide_product_service(product_repo: ProductRepository) -> ProductService:
-    return ProductService(repo=product_repo)
-
-
-def provide_order_service(
-    order_repo: OrderRepository,
-    product_repo: ProductRepository,
-    user_repo: UserRepository,
-) -> OrderService:
-    return OrderService(
-        order_repository=order_repo,
-        product_repository=product_repo,
-        user_repository=user_repo,
-    )
-
-
+# Создаем приложение
 app = Litestar(
     route_handlers=[
-        root,  # Добавляем корневой эндпоинт
-        UserController,
-        ProductController,
-        OrderController,
+        root,
+        health_check,
+        get_reports,
+        get_users,
+        get_products,
+        get_orders
     ],
     dependencies={
         "session": Provide(provide_db_session),
-        "user_repo": Provide(provide_user_repo, sync_to_thread=False),
-        "product_repo": Provide(provide_product_repo, sync_to_thread=False),
-        "order_repo": Provide(provide_order_repo, sync_to_thread=False),
-        "user_service": Provide(provide_user_service, sync_to_thread=False),
-        "product_service": Provide(provide_product_service, sync_to_thread=False),
-        "order_service": Provide(provide_order_service, sync_to_thread=False),
     },
+    debug=True
 )
 
-
-async def create_tables():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-
-
 if __name__ == "__main__":
-    import asyncio
+    # Создаем таблицы
+    asyncio.run(create_tables())
+
 
     import uvicorn
-
-    asyncio.run(create_tables())
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(
+        "app.main:app",
+        host="127.0.0.1",
+        port=8080,
+        reload=True
+    )

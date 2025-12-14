@@ -19,7 +19,7 @@ class Service(Protocol):
     def get_one(self) -> Item: ...
 
 
-@get(path="/item")
+@get(path="/item", sync_to_thread=False)
 def get_item(service: Service) -> Item:
     return service.get_one()
 
@@ -39,7 +39,7 @@ def test_get_item(item: Item):
             return item
 
     with create_test_client(
-        route_handlers=get_item, dependencies={"service": Provide(lambda: MyService())}
+            route_handlers=get_item, dependencies={"service": Provide(lambda: MyService())}
     ) as client:
         response = client.get("/item")
         assert response.status_code == HTTP_200_OK

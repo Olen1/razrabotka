@@ -1,40 +1,127 @@
+version: '3.8'
+
 services:
   rabbitmq:
-    image: rabbitmq:3-management
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
     ports:
-      - "5672:5672"  # порт для AMQP
-      - "15672:15672"  # порт для веб-интерфейса
+      - "5672:5672"
+      - "15672:15672"
     environment:
-      - RABBITMQ_DEFAULT_VHOST=local
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_VHOST: /
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - app-network
+    restart: unless-stopped
 
   redis:
-    image: redis:latest
+    image: redis:7-alpine
     container_name: redis
     ports:
-      - 6379:6379
+      - "6379:6379"
     volumes:
-      - redis_data:/data  # изменил на redis_data для единообразия
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - app-network
+    restart: unless-stopped
 
   web:
-    build: .
+    image: python:3.11-slim  # Используем готовый образ
+    container_name: web
     ports:
-      - "8000:8000"
+      - "8080:8080"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:///./data/test.db
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+      - REDIS_URL=redis://redis:6379/0
+      - APP_ENV=development
+      - PYTHONPATH=/app
+    volumes:
+      - ./:/app  # Монтируем весь проект
+    working_dir: /app
+    command: >
+      sh -c "pip install -r requirements.txt &&
+             python -c 'import os; os.makedirs(\"data\", exist_ok=True)' &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - app-network
+
+  worker:
+    image: python:3.11-slim
+    container_name: worker
     depends_on:
       - rabbitmq
-      - redis  # добавил зависимость от redis
+      - redis
+      - web
     environment:
-      - DATABASE_URL=sqlite+aiosqlite:///./test.db
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/local
-      - REDIS_URL=redis://redis:6379/0  # добавил переменную для Redis
-      - HOST=0.0.0.0
-      - PORT=8000
+      - DATABASE_URL=sqlite+aiosqlite:///./data/test.db
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+      - REDIS_URL=redis://redis:6379/0
+      - APP_ENV=development
+      - PYTHONPATH=/app
     volumes:
-      - .:/app  # добавил монтирование кода для разработки
+      - ./:/app
     working_dir: /app
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: >
+      sh -c "pip install -r requirements.txt &&
+             python worker.py"
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  scheduler:
+    image: python:3.11-slim
+    container_name: scheduler
+    depends_on:
+      - rabbitmq
+      - redis
+      - web
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:///./data/test.db
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+      - REDIS_URL=redis://redis:6379/0
+      - APP_ENV=development
+      - PYTHONPATH=/app
+    volumes:
+      - ./:/app
+    working_dir: /app
+    command: >
+      sh -c "pip install -r requirements.txt &&
+             taskiq scheduler tasks:scheduler --skip-first-run"
+    networks:
+      - app-network
+    restart: unless-stopped
 
 volumes:
   rabbitmq_data:
-  redis_data:  # добавил определение volume для Redis
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge

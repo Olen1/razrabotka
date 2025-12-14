@@ -1,0 +1,17 @@
+
+# Основной фреймворк
+litestar>=2.0.0
+sqlalchemy>=2.0.0
+aiosqlite>=0.19.0
+
+# TaskIQ для фоновых задач
+taskiq>=0.11.0
+taskiq-aio-pika>=0.4.0
+taskiq-redis>=0.2.0
+
+# Redis и RabbitMQ
+aio-pika>=9.0.0
+redis>=4.2.0,<5.0.0
+
+# Дополнительно
+python-dotenv>=1.0.0

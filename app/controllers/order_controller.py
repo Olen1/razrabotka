@@ -1,11 +1,10 @@
-# app/controllers/order_controller.py
-from typing import List
 
 from litestar import Controller, delete, get, post, put
 from litestar.exceptions import NotFoundException
 from litestar.params import Parameter
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.services import order_service
 from app.services.order_service import OrderService
 from app.User_schem import OrderCreate, OrderResponse, OrdersListResponse, OrderUpdate
 
